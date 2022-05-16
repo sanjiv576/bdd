@@ -5,6 +5,7 @@ from pytest_bdd import (
     scenario,
     then,
     when,
+    parsers,
 )
 
 from project.oranges import OrangeBasket
@@ -14,18 +15,27 @@ from project.oranges import OrangeBasket
 def test_add_oranges_to_a_basket():
     """Add oranges to a basket."""
 
+@scenario('../features/oranges.feature', 'Remove oranges from the basket')
+def test_remove_oranges_to_a_basket():
+    """Remove oranges to a basket."""
+
 # Note to make correction: add target fixture
 # Note: fixture ---> to use same object for multiple places
-@given('the basket has 2 oranges', target_fixture='basket')
-def the_basket_has_2_oranges():
-    return OrangeBasket(initial_count=2)  # returns object of the basket
+@given(parsers.parse('the basket has {start:d} oranges'), target_fixture='basket')
+def the_basket_has_2_oranges(start):
+    return OrangeBasket(initial_count=start)  # returns object of the basket
 
 # Note to make correction: change acorin
-@when('4 oranges are added to the masket')
-def oranges_are_added_to_the_masket(basket):  # Note: basket is object which is already defined  above 
-    basket.add(4)
+@when(parsers.parse('{more:d} oranges are added to the basket'))
+def oranges_are_added_to_the_basket(basket, more):  # Note: basket is object which is already defined  above 
+    basket.add(more)
 
-@then('the basket contains 6 oranges')
-def the_basket_contains_6_oranges(basket):
-    assert basket.count == 6
+
+@when(parsers.parse('{more:d} oranges are removed from the basket'))
+def oranges_are_removed_to_the_basket(basket, more):  # Note: basket is object which is already defined  above 
+    basket.remove(more)
+
+@then(parsers.parse('the basket contains {final:d} oranges'))
+def the_basket_contains_6_oranges(basket, final):
+    assert basket.count == final
 
